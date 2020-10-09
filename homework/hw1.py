@@ -1,7 +1,6 @@
 #%%
 import numpy as np
 import matplotlib.pyplot as plt
-#%%
 
 def f(x):
     '''
@@ -20,7 +19,12 @@ def newtonArray(f, df, x0, n):
     '''
     Replace the pass with the code, try replacing Newton's method with a simple relaxation.
     '''
-    pass
+    x = np.zeros(n+1)
+    x[0] = x0
+    for k in range(n):
+        x[k+1] = x[k] - f(x[k])/ df(x[k])
+    return x
+    
 
 def plotError(y, x):
     '''
