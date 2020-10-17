@@ -52,6 +52,36 @@ def getAuxMatrix(A):
     U = -triu(A, k=1)
     return D, L, U
 
+def jacobiIteration(A, b, x0=None, tol=1e-13, numIter=100):
+    '''
+    Jacobi iteraiton:
+    A: nxn matrix
+    b: (n,) vector
+    x0: initial guess
+    numIter: total number of iteration
+    tol: algorithm stops if ||x^{k+1} - x^{k}|| < tol
+    return: x
+    x: solution array such that x[i] = i-th iterate
+    '''
+    n = A.shape[0]
+    x = np.zeros((numIter+1, n))
+    if x0 is not None:
+        x[0] = x0
+    D, L, U = getAuxMatrix(A)
+    for k in range(numIter):
+        x[k+1] = ((L+U)@x[k])/D + b/D
+        if norm(x[k+1] - x[k]) < tol:
+            break
+    
+    return x[:k+1]
+
+A = getMatrix(n=5, isDiagDom=False)
+A = A/2
+print(A.toarray())
+x_true = np.random.randn(5)
+b = A@x_true
+x = jacobiIteration(A, b)
+
 def plotConvergence(x_true, x, k=2, scale='log', rate=True):
     '''
     Plot the error ||x[i] - x_true||_k against i or the rate of the convergence
@@ -77,4 +107,7 @@ def plotConvergence(x_true, x, k=2, scale='log', rate=True):
     elif (scale is 'linear') and rate:
         plt.plot(error[1:]/error[:-1])
 
+plotConvergence(x_true, x, k=2, scale='log', rate=True)
 
+
+# %%
