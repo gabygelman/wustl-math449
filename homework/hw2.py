@@ -1,6 +1,6 @@
 #%%
 import numpy as np
-from numpy.linalg import *
+from numpy.linalg import norm
 import matplotlib.pyplot as plt
 from scipy.sparse import *
 Inf = np.inf
@@ -21,16 +21,16 @@ def getMatrix(n=10, isDiagDom=True):
 
     # Precompute sparse matrix
     if isDiagDom:
-        diagonal[:] = 2 + 1/n
+        diagonal[:] = 2 + 1/n**2
     else:
         diagonal[:] = 2
     lower[:] = -1  #1
     upper[:] = -1  #1
     # Insert boundary conditions
-    diagonal[0] = 1
-    upper[0] = 0
-    diagonal[n] = 1
-    lower[-1] = 0
+    # diagonal[0] = 1
+    # upper[0] = 0
+    # diagonal[n] = 1
+    # lower[-1] = 0
 
     
     A = diags(
@@ -52,53 +52,29 @@ def getAuxMatrix(A):
     U = -triu(A, k=1)
     return D, L, U
 
-def plotConvergence(x_true, x, k=2, scale='log'):
+def plotConvergence(x_true, x, k=2, scale='log', rate=True):
     '''
-    Plot the error ||x[i] - x_true||_k against i
+    Plot the error ||x[i] - x_true||_k against i or the rate of the convergence
     x_true: (n,) vector
     x: (m, n) matrix, x[i] is the i-th iterate, 
     x[0] = x0 is the initial guess
     m: total number of iterations
     scale: 'log' or 'linear'
     k: 1,2,..., of Inf
+    rate: bool (optional) If true, plot the rate of the convergence
+    ||x[i+1] - x_true||_k/||x[i] - x_true||_k against
     '''
     numIter = x.shape[0]
     error = np.zeros(numIter)
     for i in range(numIter):
         error[i] = norm(x_true - x[i], k)
-    if scale is 'log':
+    if (scale is 'log') and (not rate):
         plt.semilogy(error)
-    else:
+    elif (scale is 'linear') and (not rate):
         plt.plot(error)
-
-def jacobiIteration(A, b, x0=None, tol=1e-13, numIter=100):
-    '''
-    Jacobi iteraiton:
-    A: nxn matrix
-    b: (n,) vector
-    x0: initial guess
-    numIter: total number of iteration
-    tol: algorithm stops if ||x^{k+1} - x^{k}|| < tol
-    return: x
-    x: solution array such that x[i] = i-th iterate
-    '''
-    n = A.shape[0]
-    x = np.zeros((numIter+1, n))
-    if x0 is not None:
-        x[0] = x0
-    D, L, U = getAuxMatrix(A)
-    for k in range(numIter):
-        x[k+1] = ((L+U)@x[k])/D + b/D
-        if norm(x[k+1] - x[k]) < tol:
-            break
-    
-    return x[:k+1]
-
-A = getMatrix(n = 5)
-print(A.toarray)
-x_true = np.random.randn(5)
-b = A@x_true
-x = jacobiIteration(A, b)
+    elif (scale is 'log') and rate:
+        plt.plot(np.log(error[1:]/error[:-1]))
+    elif (scale is 'linear') and rate:
+        plt.plot(error[1:]/error[:-1])
 
 
-# %%
