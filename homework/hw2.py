@@ -74,13 +74,11 @@ def jacobiIteration(A, b, x0=None, tol=1e-13, numIter=100):
             break
     
     return x[:k+1]
-
 A = getMatrix(n=5, isDiagDom=False)
 A = A/2
 print(A.toarray())
 x_true = np.random.randn(5)
 b = A@x_true
-x = jacobiIteration(A, b)
 
 def plotConvergence(x_true, x, k=2, scale='log', rate=True):
     '''
@@ -107,7 +105,15 @@ def plotConvergence(x_true, x, k=2, scale='log', rate=True):
     elif (scale is 'linear') and rate:
         plt.plot(error[1:]/error[:-1])
 
-plotConvergence(x_true, x, k=2, scale='log', rate=True)
+maxProbSize = 30
+numIter = 50
+for i in range(5, maxProbSize+1, 5):
+    A = getMatrix(n=i)
+    x_true = np.random.randn(i)
+    b = A@x_true
+    x = jacobiIteration(A, b, numIter=numIter)
+    plotConvergence(x_true, x)
+
 
 
 # %%
