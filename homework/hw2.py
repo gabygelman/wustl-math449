@@ -79,7 +79,8 @@ A = A/2
 print(A.toarray())
 x_true = np.random.randn(5)
 b = A@x_true
-
+x = jacobiIteration(A, b)
+print(x)
 def plotConvergence(x_true, x, k=2, scale='log', rate=True):
     '''
     Plot the error ||x[i] - x_true||_k against i or the rate of the convergence
